@@ -21,6 +21,6 @@ let package = Package(
     targets: [
         .binaryTarget(name: "RevenueCat",
                       url: "https://github.com/swift-xcframeworks/purchases-ios/releases/download/\(purchasesVersion)/RevenueCat.xcframework.zip",
-                      checksum: purchasesVersion)
+                      checksum: purchasesChecksum)
     ]
 )
