@@ -3,7 +3,7 @@
 import PackageDescription
 
 let purchasesVersion = "4.21.1" // Updated by workflow action
-let purchaseshecksum = "215b7b37b3085c9522da8ededce74cb81162b542d35e4aefea634cbda61c2376" // Updated by workflow action
+let purchasesChecksum = "215b7b37b3085c9522da8ededce74cb81162b542d35e4aefea634cbda61c2376" // Updated by workflow action
 
 
 let package = Package(
