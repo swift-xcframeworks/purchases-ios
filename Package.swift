@@ -7,7 +7,7 @@ let purchasesChecksum = "53e2b6cb899295b812e1372da6a859cd8bcf25d7a57b55783f64d5f
 
 
 let package = Package(
-    name: "purchases-ios",
+    name: "RevenueCat",
     platforms: [
         .macOS(.v10_13),
         .watchOS("6.2"),
