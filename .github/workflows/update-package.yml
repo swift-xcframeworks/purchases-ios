@@ -17,29 +17,13 @@ jobs:
     if: needs.check_for_updates.outputs.needs-update == 'true'
     runs-on: ubuntu-latest
     steps:
-
-      - name: Get latest release
-        id: latest_release
-        run: |
-          LATEST_RELEASE=$(curl --silent "https://api.github.com/repos/RevenueCat/purchases-ios/releases/latest" | jq -r .tag_name)
-          echo "VERSION=${LATEST_RELEASE}" >> $GITHUB_OUTPUT
-
-      - name: Compare with latest release in our repo
-        run: |
-          NEW_VERSION="${{ steps.latest_release.outputs.VERSION }}"
-          CURRENT_VERSION=$(curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r .tag_name)
-          if [ "$NEW_VERSION" == "$CURRENT_VERSION" ]; then
-            echo "::warning::The latest release from RevenueCat/purchases-ios is already processed in our repository. Exiting the workflow."
-            exit 1
-          fi
-
       - name: Check out code
         uses: actions/checkout@v3
 
       - name: Download and process RevenueCat.xcframework.zip
         id: process_framework
         run: |
-          curl -sLJO https://github.com/RevenueCat/purchases-ios/releases/download/${{ steps.latest_release.outputs.VERSION }}/RevenueCat.xcframework.zip
+          curl -sLJO https://github.com/RevenueCat/purchases-ios/releases/download/${{ needs.check_for_updates.outputs.latest-version }}/RevenueCat.xcframework.zip
           unzip RevenueCat.xcframework.zip -d extracted
           rm RevenueCat.xcframework.zip
           mv extracted/xcframeworks/RevenueCat.xcframework ./
@@ -51,7 +35,7 @@ jobs:
 
       - name: Update Package.swift
         run: |
-          sed -i.bak "s|let purchasesVersion = \".*\"|let purchasesVersion = \"${{ steps.latest_release.outputs.VERSION }}\"|g" Package.swift
+          sed -i.bak "s|let purchasesVersion = \".*\"|let purchasesVersion = \"${{ needs.check_for_updates.outputs.latest-version }}\"|g" Package.swift
           sed -i.bak "s|let purchasesChecksum = \".*\"|let purchasesChecksum = \"${{ steps.process_framework.outputs.SHA256_HASH }}\"|g" Package.swift
           rm Package.swift.bak
     
@@ -60,9 +44,9 @@ jobs:
           git config --local user.email github-actions@github.com
           git config --local user.name github-actions
           git add Package.swift
-          git commit -m "Update Package.swift for release ${{ steps.latest_release.outputs.VERSION }}"
+          git commit -m "Update Package.swift for release ${{needs.check_for_updates.outputs.latest-version}}"
           git push
-          git tag ${{ steps.latest_release.outputs.VERSION }}
+          git tag ${{ needs.check_for_updates.outputs.latest-version }}
           git push --tags
   
       - name: Create new release
@@ -71,8 +55,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: "${{ steps.latest_release.outputs.VERSION }}"
-          release_name: "${{ steps.latest_release.outputs.VERSION }}"
+          tag_name: "${{ needs.check_for_updates.outputs.latest-version }}"
+          release_name: "${{ needs.check_for_updates.outputs.latest-version }}"
           draft: false
           prerelease: false
 
