@@ -39,5 +39,5 @@ jobs:
           else
             echo "Needs an update"
             echo "needs-update=true" >> $GITHUB_OUTPUT
-            echo "$GITHUB_OUTPUT"
+            cat "$GITHUB_OUTPUT"
           fi
