@@ -1,0 +1,43 @@
+name: Check for update from repository
+
+on:
+  workflow_call:
+    inputs:
+      source-repo:
+        description: 'Source repository to check'
+        required: true
+        type: string
+    outputs:
+      latest-version:
+        description: "The latest relase of the source repository"
+        value: ${{ jobs.check-version.outputs.latest-version }}
+      needs-update:
+        description: "True if the latest version is not our latest version"
+        value:  ${{ jobs.check-version.outputs.needs-update }}
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      latest-version: ${{ steps.latest_release.outputs.latest-version }}
+      needs-update: ${{ steps.compare_release.outputs.needs-update }}
+    steps:
+      - name: Get latest release
+        id: latest_release
+        run: |
+          LATEST_RELEASE=$(curl --silent "https://api.github.com/repos/${{ inputs.source-repo }}/releases/latest" | jq -r .tag_name)
+          echo "latest-version=${LATEST_RELEASE}" >> $GITHUB_OUTPUT
+
+      - name: Compare with latest release in our repo
+        id: compare_release
+        run: |
+          NEW_VERSION="${{ steps.latest_release.outputs.latest-version }}"
+          CURRENT_VERSION=$(curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r .tag_name)
+          if [ "$NEW_VERSION" == "$CURRENT_VERSION" ]; then
+            echo "The latest release from ${{ inputs.source-repo }} is already processed in our repository. Exiting the workflow."
+            echo "needs-update=false" >> $GITHUB_OUTPUT
+          else
+            echo "Needs an update"
+            echo "needs-update=true" >> $GITHUB_OUTPUT
+            echo "$GITHUB_OUTPUT"
+          fi

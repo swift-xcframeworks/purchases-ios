@@ -6,7 +6,15 @@ on:
     - cron: '0 0 * * *' # This schedule is set to run every day at midnight. Modify as necessary.
 
 jobs:
+  check_for_updates:
+    name: "Call the update-package workflow"
+    uses: ./.github/workflows/check-for-update.yml
+    with:
+      source-repo: 'RevenueCat/purchases-ios'
+
   build:
+    needs: check_for_updates
+    if: needs.check_for_updates.outputs.needs-update == 'true'
     runs-on: ubuntu-latest
     steps:
 
