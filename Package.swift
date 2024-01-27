@@ -2,8 +2,8 @@
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 import PackageDescription
 
-let purchasesVersion = "4.32.2" // Updated by workflow action
-let purchasesChecksum = "04593ae44799d1000c2056bbbe41f6d6506a216888d36d13f0bda93a7092c4d4" // Updated by workflow action
+let purchasesVersion = "4.32.3" // Updated by workflow action
+let purchasesChecksum = "0d8442943f89affc45e8f8c02203b5ff7e269d43cc2265bfd726acff06d4b4ba" // Updated by workflow action
 
 
 let package = Package(
